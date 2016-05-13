@@ -1,0 +1,35 @@
+
+version: '2'
+
+services:
+  mysql:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: local
+      MYSQL_USER: local
+      MYSQL_PASSWORD: local
+    networks:
+      default:
+
+  web:
+    image: uofa/docker_apache2_php7
+    volumes:
+      - ./app:/web/app
+      - ./vendor:/web/vendor
+    ports:
+      - "8001:80"
+    networks:
+      default:
+
+  memcache:
+    image: memcached
+    networks:
+      default:
+
+  mail:
+    image: helder/mailcatcher
+    ports:
+      - "1080:80"
+    networks:
+      default:

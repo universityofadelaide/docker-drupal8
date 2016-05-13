@@ -1,0 +1,38 @@
+{
+  "custom": null,
+  "database": {
+    "database": "local",
+    "driver": "mysql",
+    "host": "mysql",
+    "password": "local",
+    "port": "3306",
+    "username": "local"
+  },
+  "environment": {
+    "config_sync_dir": "sites/default/files/config_change_this_to_something_random/sync",
+    "deployment_type": null,
+    "domain_name": null,
+    "id": "0",
+    "git_reference": "develop",
+    "hash_salt": "thisalsoshouldbesomethingrandom",
+    "machine_name": "dev",
+    "uuid": ""
+  },
+  "site": {
+    "admin_email": "admin@localhost",
+    "admin_password": "password",
+    "admin_user": "admin",
+    "aliases": null,
+    "authoriser_email": "authoriser@email.com",
+    "authoriser_name": "authoriser name",
+    "domain_name": "adelaide.edu.au",
+    "id": "0",
+    "keys": [],
+    "maintainer_email": "maintainer@email.com",
+    "maintainer_name": "maintainer name",
+    "path": "",
+    "site_title": "Starter site",
+    "top_menu_style": "no_menu",
+    "uuid": ""
+  }
+}
