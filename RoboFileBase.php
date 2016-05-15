@@ -402,7 +402,6 @@ abstract class RoboFileBase extends \Robo\Tasks implements RoboFileDrupalDeployI
     $this->_exec("$this->drush_cmd dl drupal-8 --destination=/tmp --drupal-project-rename=drupal-8 --quiet -y");
     $this->_exec("rsync -avz --delete /tmp/drupal-8/ $this->application_root \\
       --exclude=.gitkeep \\
-      --exclude=autoload.php \\
       --exclude=composer.json \\
       --exclude=core \\
       --exclude=drush \\

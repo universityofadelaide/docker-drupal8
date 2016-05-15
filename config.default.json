@@ -34,5 +34,9 @@
     "site_title": "Starter site",
     "top_menu_style": "no_menu",
     "uuid": ""
+  },
+  "platform": {
+    "reverse_proxy_addresses": [],
+    "reverse_proxy_header": "X-Forwarded-For"
   }
 }
