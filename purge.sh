@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. common.sh
+. stop.sh
 
 DIR=$(pwd)
 PROJECT=$(basename ${DIR} | sed 's/[-_]//g')
