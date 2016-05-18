@@ -11,7 +11,19 @@ cd test
 cp -r ../docker_drupal8/* .
 ```
 
-The setup then requires and enter any additional
+The next step is to start the docker environment with:
+
+```
+./start.sh
+```
+
+Then stand the docker 'utility' container for the rest of the steps
+
+```
+./dsh.sh
+```
+
+The setup then requires you to enter any additional
 requirements into composer.json and run:
 
 ```
@@ -20,16 +32,9 @@ composer install
 
 To get the initial codebase setup.
 
-The next step is to start the docker environment with:
+Then you can build the drupal site with
 
 ```
-./start.sh
-```
-
-Then login and build the base for Drupal
-
-```
-./dsh.sh
 robo dev:rebuild-scaffold
 ```
 
@@ -53,4 +58,14 @@ to the config.default.json before performing:
 
 ```
 robo build
+```
+
+Working on the project can be stopped with:
+```
+./stop.sh
+```
+
+And removing the mysql db and containers can be done with:
+```
+./purge.sh
 ```
