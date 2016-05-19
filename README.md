@@ -3,29 +3,24 @@ This repository is designed to provide a quick way to start projects
 with Drupal using robo as the build tool and docker to host the
 environment.
 
-To use, copy all files to an empty directory with something like:
-
+To use for your own projects, check out this repository and the remove the .git folder with:
 ```
-mkdir test
-cd test
-cp -r ../docker_drupal8/* .
+git clone git@github.com:universityofadelaide/docker_drupal8.git
+rm -rf .git
 ```
 
 The next step is to start the docker environment with:
-
 ```
 ./start.sh
 ```
 
 Then stand the docker 'utility' container for the rest of the steps
-
 ```
 ./dsh.sh
 ```
 
 The setup then requires you to enter any additional
 requirements into composer.json and run:
-
 ```
 composer install
 ```
@@ -33,13 +28,11 @@ composer install
 To get the initial codebase setup.
 
 Then you can build the drupal site with
-
 ```
 robo dev:rebuild-scaffold
 ```
 
 There is one change that needs to be made to the Drupal autoloader, do this with:
-
 ```
 sed -i "s/\/vendor\//\.\/\.\.\/vendor\//g" app/autoload.php
 ```
@@ -55,7 +48,6 @@ return require __DIR__ . './../vendor/autoload.php';
 
 Things are now ready for a normal Drupal setup, though you may want to make changes
 to the config.default.json before performing:
-
 ```
 robo build
 ```
