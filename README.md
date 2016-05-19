@@ -40,11 +40,14 @@ sed -i "s/\/vendor\//\.\/\.\.\/vendor\//g" app/autoload.php
 The change in the app/autoload.php is:
 
 Before:
+```
 return require __DIR__ . '/vendor/autoload.php';
+```
 
 After:
+```
 return require __DIR__ . './../vendor/autoload.php';
-
+```
 
 Things are now ready for a normal Drupal setup, though you may want to make changes
 to the config.default.json before performing:
