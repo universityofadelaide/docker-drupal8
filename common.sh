@@ -19,34 +19,34 @@ function setup_docker_machine() {
 
         # Check if the docker machine exists already, create one if not.
         if [[ $? == 1 ]]; then
-            notice "No ${MACHINE} environment found"
+            echo "No ${MACHINE} environment found"
             create_machine
         fi
         set -e
 
         if [[ ${STATUS} == 'Stopped' ]]; then
-            notice "Docker machine not running, starting now"
+            echo "Docker machine not running, starting now"
             docker-machine start ${MACHINE}
         fi
 
         if [[ ${STATUS} == 'Saved' ]]; then
-            notice "Docker machine in saved state, restarting now"
+            echo "Docker machine in saved state, restarting now"
             docker-machine start ${MACHINE}
         fi
 
         if [[ ${STATUS} == 'Error' ]]; then
-            notice "Docker machine vm does not exist but docker-machine still has it registered, remove then create"
+            echo "Docker machine vm does not exist but docker-machine still has it registered, remove then create"
             docker-machine rm ${MACHINE}
             create_machine
         fi
 
-        notice "Loading vars for docker machine."
+        echo "Loading vars for docker machine."
         eval "$(docker-machine env ${MACHINE})"
     fi
 }
 
 function create_machine() {
-    notice "Creating new machine"
+    echo "Creating new machine"
     docker-machine create --driver virtualbox --engine-insecure-registry registry:5000 ${MACHINE}
     #docker-machine ssh ${MACHINE} ln -s $(pwd)/code code
     #docker-machine ssh ${MACHINE} sudo mv code /code
