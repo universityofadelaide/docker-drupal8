@@ -6,6 +6,7 @@ environment.
 To use for your own projects, check out this repository and the remove the .git folder with:
 ```
 git clone git@github.com:universityofadelaide/docker_drupal8.git
+cd docker_drupal8
 rm -rf .git
 ```
 
@@ -14,10 +15,16 @@ The next step is to start the docker environment with:
 ./start.sh
 ```
 
+If you get an error about the image it may have changed recently. The image is configured within `docker-compose.yml`.
+
+Docker will download and extract all of the required dependencies.
+
 Then stand the docker 'utility' container for the rest of the steps
 ```
 ./dsh.sh
 ```
+
+If you get an error about your client being newer or incorrect version, try running `docker-machine upgrade`
 
 The setup then requires you to enter any additional
 requirements into composer.json and run:
