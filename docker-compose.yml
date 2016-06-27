@@ -13,7 +13,7 @@ services:
       default:
 
   web:
-    image: uofa/docker_apache2_php7
+    image: uofa/apache2-php7
     volumes:
       - ./app:/web/app
       - ./vendor:/web/vendor
