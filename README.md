@@ -3,7 +3,12 @@ This repository is designed to provide a quick way to start projects
 with Drupal using [robo](http://robo.li/) as the build tool and [docker](https://www.docker.com/) to host the
 environment.
 
-# Initial Setup
+# Getting started
+
+It is assumed that you have docker installed. For OS X and Windows users you will need to install the [docker toolbox](https://www.docker.com/products/docker-toolbox).
+This will give you required tools to run docker through a vm layer ( docker-machine ).
+
+# Initial setup
 
 To use for your own projects, check out this repository and the remove the .git folder with:
 ```bash
