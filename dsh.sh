@@ -13,7 +13,7 @@ if [ ! -z "${SSH_AUTH_SOCK}" ]; then
            -v ${DIR}:/code \
            -v ${DIR}/.composer:/${SHELL_USER}/.composer \
            --net=${PROJECT}_default \
-           uofa/docker_drupal_utility /entry.sh
+           uofa/utility-php7 /entry.sh
     set -e
 
     docker rm ${PROJECT}_utility
