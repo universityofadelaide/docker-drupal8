@@ -10,6 +10,27 @@ MACHINE='default'
 DIR=$(pwd)
 PROJECT=$(basename ${DIR} | sed 's/[-_]//g')
 
+# Colours.
+ESC_SEQ="\x1b["
+COL_RESET=${ESC_SEQ}"39;49;00m"
+COL_GREEN=${ESC_SEQ}"32;01m"
+COL_YELLOW=${ESC_SEQ}"33;01m"
+COL_RED=${ESC_SEQ}"31;01m"
+
+# Define some friendly echos, to give some context.
+function notice() {
+    echo -e "${COL_GREEN}$1${COL_RESET}"
+}
+
+function warning() {
+    echo -e "${COL_YELLOW}$1${COL_RESET}"
+}
+
+function error() {
+    echo -e "${COL_RED}$1${COL_RESET}"
+    exit
+}
+
 function setup_docker_machine() {
     # If we're not running on a linux machine, we need to be using docker-machine.
     if [ ${OSTYPE} != 'linux-gnu' ]; then
