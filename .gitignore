@@ -21,3 +21,4 @@
 config.json
 .DS_Store
 .composer/*
+.bash_history
