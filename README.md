@@ -22,9 +22,36 @@ The next step is to start the docker environment with:
 $ ./start.sh
 ```
 
-If you get an error about the image it may have changed recently. The image is configured within `docker-compose.yml`.
-
 Docker will download and extract all of the required dependencies.
+This script will build the following containers :
+- web
+- memcache
+- mysql
+- mail
+
+To view all the running containers you have just built:
+```bash
+$ docker ps
+```
+
+NOTE MAC OS X users:
+
+If you see this :
+```bash
+$ Cannot connect to the Docker daemon. Is the docker daemon running on this host?
+```
+
+You need to eval the docker-machine environment running. To find the name of the docker-machine(s) you are running :
+
+```bash
+$ docker-machine ls
+```
+
+```bash
+$ eval $(docker-machine env DOCKERMACHINE_NAME_GOES_HERE)
+```
+
+## Accessing the 'utility' container
 
 Then stand the docker 'utility' container for the rest of the steps
 ```bash
