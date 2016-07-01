@@ -12,7 +12,7 @@ We follow the docker philosophy, meaning one container per application process. 
 
 # Initial setup
 
-To use for your own projects, check out this repository and the remove the .git folder with:
+To use for your own projects, check out this repository and then remove the .git folder with:
 ```bash
 $ git clone git@github.com:universityofadelaide/docker_drupal8.git
 $ cd docker_drupal8
