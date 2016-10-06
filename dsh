@@ -1,0 +1,218 @@
+#!/bin/bash
+
+# `set +e` is used to continue on errors throughout this script.
+set -euo pipefail
+IFS=$'\n\t'
+
+# Global defines.
+MACHINE='default'
+
+# localhost is reserved in Mac OS, needs to be test. Bonjour!
+export DOMAIN=${DOMAIN:-'test'}
+
+# Figure out some names/directories.
+DIR=$(pwd)
+
+# Used as the prefix for docker networking, container naming and nginx hostname.
+export PROJECT=$(basename ${DIR} | sed 's/[-_]//g')
+
+# Setup some functions to output warnings.
+notice() {
+  printf "\e[32;01m$1\e[39;49;00m\n"
+}
+
+warning() {
+  printf "\e[33;01m$1\e[39;49;00m\n"
+}
+
+error() {
+  printf "\e[31;01m$1\e[39;49;00m\n"
+}
+
+setup_nginx_proxy() {
+  if ! docker ps | grep -q "nginx-proxy"; then
+    if docker ps -a | grep -q "nginx-proxy"; then
+      docker start nginx-proxy
+    else
+      docker run -d -p 8080:80 \
+        -v /var/run/docker.sock:/tmp/docker.sock:ro \
+        --restart always --name nginx-proxy \
+        jwilder/nginx-proxy
+    fi
+  fi
+
+  if ! docker ps | grep -q "nginx-proxy"; then
+    error "jwilder/nginx-proxy could not be started."
+  fi
+
+  notice "Connecting nginx-proxy to the network."
+  set +e
+  docker network connect ${PROJECT}_default nginx-proxy
+  set -e
+}
+
+setup_docker_machine() {
+  # If we're not running on a linux machine, we need to be using docker-machine.
+  if [ ${OSTYPE} != 'linux-gnu' ]; then
+
+    set +e
+    STATUS=$(docker-machine status ${MACHINE})
+
+    # Check if the docker machine exists already, create one if not.
+    if [[ $? == 1 ]]; then
+      notice "No ${MACHINE} environment found."
+      create_machine
+    fi
+    set -e
+
+    if [[ ${STATUS} == 'Stopped' ]]; then
+      notice "Docker machine not running, starting now."
+      docker-machine start ${MACHINE}
+    fi
+
+    if [[ ${STATUS} == 'Saved' ]]; then
+      notice "Docker machine in saved state, restarting now."
+      docker-machine start ${MACHINE}
+    fi
+
+    if [[ ${STATUS} == 'Error' ]]; then
+      notice "Docker machine vm does not exist but docker-machine still has it registered, remove then create."
+      docker-machine rm ${MACHINE}
+      create_machine
+    fi
+
+    notice "Loading vars for docker machine."
+    eval "$(docker-machine env ${MACHINE})"
+  fi
+
+  if ! docker network ls | grep -q ${PROJECT}_default; then
+    notice "Creating project docker network."
+    docker network create ${PROJECT}_default
+  fi
+
+  # Determine network gateway and export it so that docker compose can insert it
+  export DOCKER_HOST_IP=$(docker network inspect --format '{{json (index .IPAM.Config 0).Gateway}}' ${PROJECT}_default | awk '{match($0,/[0-9\.]+/); ip = substr($0,RSTART,RLENGTH); print ip}')
+}
+
+create_machine() {
+  notice "Creating new machine."
+  docker-machine create --driver virtualbox --engine-insecure-registry registry.${DOMAIN}:5000 ${MACHINE}
+  # use nfs, configure all directories to root
+  # if no docker-machine-nfs error out
+  if ! type "docker-machine-nfs" > /dev/null; then
+    error "Please install 'docker-machine-nfs' using \n  $ brew install docker-machine-nfs "
+  fi
+  docker-machine-nfs ${MACHINE} -f --nfs-config="-alldirs -maproot=0"
+  docker-machine ssh ${MACHINE} ln -s $(pwd)/code code
+  docker-machine ssh ${MACHINE} sudo mv code /code
+}
+
+dsh_shell() {
+  dsh_start
+  SHELL_USER=${USER}
+  SHELL_PID=$$
+
+  notice "Starting shell."
+
+  if [ ! -z "${SSH_AUTH_SOCK}" ]; then
+    SOCK=$(dirname ${SSH_AUTH_SOCK})
+    set +e
+    docker run -it -w /code --rm -h utility --name ${PROJECT}_utility_${SHELL_PID} \
+      -e USER=${SHELL_USER} \
+      -e UID=${UID} \
+      -v ${SOCK}:${SOCK} -e SSH_AUTH_SOCK=${SSH_AUTH_SOCK} \
+      -v ${DIR}:/web \
+      -v ${HOME}/.composer:/code/.composer \
+      --net=${PROJECT}_default \
+      uofa/utility-php7 /entry.sh
+    set -e
+  fi
+}
+
+dsh_start() {
+  setup_docker_machine
+  setup_nginx_proxy
+  docker-compose up -d
+  notice "Please wait about 10 seconds for the database to settle.
+You can now access the site from http://${PROJECT}.${DOMAIN}:8080.
+You may need to build and install your project before it starts working.\n
+Connecting via ./dsh shell and running robo build is a common next step.\n"
+}
+
+dsh_stop() {
+  notice "Stopping containers."
+  docker-compose stop
+  if docker network ls | grep -q ${PROJECT}_default; then
+    notice "Disconnecting proxy."
+    set +e
+    docker network disconnect ${PROJECT}_default nginx-proxy
+    notice "Removing network."
+    docker network rm ${PROJECT}_default
+    set -e
+  fi
+}
+
+dsh_purge() {
+  dsh_stop
+  notice "Taking down containers."
+  docker-compose down
+  notice "Removing containers."
+  docker-compose rm -f
+}
+
+dsh_status() {
+  if ! docker ps | grep ${PROJECT}; then
+    notice "${PROJECT} not running"
+  fi
+}
+
+dsh_logs() {
+  if docker ps | grep -q ${PROJECT}; then
+    docker logs -f --tail 1 ${PROJECT}_web_1
+  fi
+}
+
+
+dsh_help() {
+  printf "\nUsage: dsh COMMAND\n\n
+Commands:\n
+\thelp\tShow this help.\n
+\tpurge\tPurge the docker containers, network and proxy and remove all data.\n
+\tshell\tStart a shell which is connected to the containers and can be used to run commands.\n
+\tstart\tStart the docker containers, network and proxy.\n
+\tstatus\tShow the status of this projects containers.\n
+\tstop\tStop the docker containers, network and proxy, but keep data for a re-start.\n
+\nIf no command is given, shell is the default.\n
+Commands can be shortened to their uniqe component, eg ./dsh sh is the same as ./dsh shell.\n\n"
+}
+
+# Set a default command to show usage when no arguments provided.
+COMMAND=${1:-default}
+
+case ${COMMAND} in
+  h*|-h|--help)
+    dsh_help
+    ;;
+  l*)
+    dsh_logs
+    ;;
+  p*)
+    dsh_purge
+    ;;
+  sh*|ss*)
+    dsh_shell
+    ;;
+  star*)
+    dsh_start
+    ;;
+  stat*)
+    dsh_status
+    ;;
+  sto*)
+    dsh_stop
+    ;;
+  *)
+    warning "Unknown command specified, defaulting to shell. For other options try:\n$0 [help|logs|purge|shell|start|status|stop].\n"
+    dsh_shell
+    ;;
+esac
