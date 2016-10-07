@@ -482,6 +482,7 @@ abstract class RoboFileBase extends \Robo\Tasks implements RoboFileDrupalDeployI
    */
   public function configExportOld() {
     $this->_exec("$this->drush_cmd -y cex --destination=" . $this->config_old_directory);
+    $this->_exec("sed -i '/^uuid: .*$/d' $this->application_root/$this->config_old_directory/*.yml");
   }
 
   /**
@@ -489,6 +490,7 @@ abstract class RoboFileBase extends \Robo\Tasks implements RoboFileDrupalDeployI
    */
   public function configExportNew() {
     $this->_exec("$this->drush_cmd -y cex --destination=" . $this->config_new_directory);
+    $this->_exec("sed -i '/^uuid: .*$/d' $this->application_root/$this->config_new_directory/*.yml");
   }
 
   /**
@@ -518,6 +520,9 @@ abstract class RoboFileBase extends \Robo\Tasks implements RoboFileDrupalDeployI
       // Handle/remove blank lines.
       $line = trim($line);
       if (empty($line)) { continue; }
+
+      // Never sync the extension file, it breaks things
+      if (stristr($line, 'core.extension.yml')) { continue; }
 
       // Break up the line into fields and put the parts in their place.
       $parts = explode(' ', $line);
@@ -602,7 +607,7 @@ abstract class RoboFileBase extends \Robo\Tasks implements RoboFileDrupalDeployI
       $output_style = '-ubr';
     }
 
-    $results = $this->taskExec("diff -N -I 'uuid:.*' -I \"   - 'file:.*\" $output_style $config_old_path $config_new_path")
+    $results = $this->taskExec("diff -N -I \"   - 'file:.*\" $output_style $config_old_path $config_new_path")
       ->run()
       ->getMessage();
 
