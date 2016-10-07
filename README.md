@@ -19,16 +19,16 @@ $ rm -rf .git
 
 The next step is to start the docker environment with:
 ```bash
-$ ./start.sh
+$ ./dsh start
 ```
 
 If you get an error about the image it may have changed recently. The image is configured within `docker-compose.yml`.
 
 Docker will download and extract all of the required dependencies.
 
-Then stand the docker 'utility' container for the rest of the steps
+Then start the docker 'utility' container for the rest of the steps
 ```bash
-$ ./dsh.sh
+$ ./dsh sh
 ```
 
 If you get an error about your client being newer or incorrect version, try running `docker-machine upgrade`
@@ -71,10 +71,10 @@ $ robo build
 
 Working on the project can be stopped with:
 ```bash
-$ ./stop.sh
+$ ./dsh stop
 ```
 
 And removing the mysql db and containers can be done with:
 ```bash
-$ ./purge.sh
+$ ./dsh purge
 ```
