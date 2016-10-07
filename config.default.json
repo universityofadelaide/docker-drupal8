@@ -32,6 +32,7 @@
     "maintainer_name": "maintainer name",
     "path": "",
     "site_title": "Starter site",
+    "site_mail": "maintainer@email.com",
     "top_menu_style": "no_menu",
     "uuid": ""
   },
